@@ -21,7 +21,7 @@ func main() {
 
 Using the Cobra Generator 使用Cobra生成器
 Cobra CLI 是它自己的程序，它将创建您的应用程序并添加您想要的任何命令。这是将 Cobra 合并到应用程序中最简单的方法。
-有关使用 Cobra 生成器的完整详细信息，请参阅 Cobra CLI 生成器《 README 》
+有关使用 Cobra 生成器的完整详细信息，请参阅 The Cobra-CLI Generator README
 
 
 Using the Cobra Library 使用Cobra库
@@ -218,8 +218,8 @@ Positional and Custom Arguments预期参数和自定义参数
 	2.Content of the arguments:
 		OnlyValidArgs			如果命令的ValidArg字段中未指定任何预期参数，则报告错误，可以选择将其设置为预期参数的有效值列表。
 如果Args为undefined或nil，则默认为ArbitraryArgs。
-此外，MatchAll（pargs…PositionalArgs）允许将现有检查与任意其他检查相结合。例如，如果您想报告一个错误，如果没有正好N个预期参数，或者如果有任何
-预期参数不在Command的ValidArgs字段中，您可以在ExactArgs和OnlyValidArg上调用MatchAll，如下所示：
+此外，MatchAll（pargs…PositionalArgs）允许将现有检查与任意其他检查相结合。例如，如果您想报告一个错误，如果没有正好N个预期参数，或者如果有
+任何预期参数不在Command的ValidArgs字段中，您可以在ExactArgs和OnlyValidArg上调用MatchAll，如下所示：
 var cmd = &cobra.Command{
 	Short: "hello",
 	Args: cobra.MatchAll(cobra.ExactArgs(2), cobra.OnlyValidArgs),
@@ -304,8 +304,8 @@ func main() {
 
 
 Help Command
-当您有子命令时，Cobra会自动向应用程序添加help命令。当用户运行“app help”时将调用此函数。此外，help还将支持所有其他命令作为输入。例如，您有一个名为
-“create”的命令，没有任何额外的配置；当调用“app help create”时，Cobra将工作。每个命令都会自动添加“--help” flag。
+当您有子命令时，Cobra会自动向应用程序添加help命令。当用户运行“app help”时将调用此函数。此外，help还将支持所有其他命令作为输入。例如，您有
+一个名为“create”的命令，没有任何额外的配置；当调用“app help create”时，Cobra将工作。每个命令都会自动添加“--help” flag。
 1.Example
 以下输出由Cobra自动生成。除了commend和flag定义之外，不需要任何东西。
 $ cobra-cli help
@@ -333,8 +333,8 @@ Use "cobra-cli [command] --help" for more information about a command.
 “help”就像其他命令一样。它周围没有特殊的逻辑或行为。事实上，如果你愿意，你可以自己提供。
 
 2.help中的命令分组
-Cobra支持可用命令的分组。组必须由AddGroup显式定义，并由子命令的GroupId元素设置。这些组将按定义的顺序显示。如果使用生成的help或completion命令，则可以
-分别通过SetHelpCommandGroupId和SetCompletionCommandGroupId设置组ID。
+Cobra支持可用命令的分组。组必须由AddGroup显式定义，并由子命令的GroupId元素设置。这些组将按定义的顺序显示。如果使用生成的help或completion
+命令，则可以分别通过SetHelpCommandGroupId和SetCompletionCommandGroupId设置组ID。
 
 3.自定义help  您可以为默认命令提供自己的help命令或模板，以用于以下函数：
 	cmd.SetHelpCommand(cmd *Command)
@@ -345,16 +345,16 @@ Cobra支持可用命令的分组。组必须由AddGroup显式定义，并由子�
 
 
 Usage Message
-当用户提供无效标志或无效命令时，Cobra会向用户显示“用法”。
-你可以从上面的help中认识到这一点。这是因为默认help将用法作为其输出的一部分嵌入。例子在292行
+当用户提供无效标志或无效命令时，Cobra会向用户显示 "usage"。
+你可以从上面的help中认识到这一点。这是因为默认help将用法作为其输出的一部分嵌入。
 1.自定义用法  您可以提供自己的使用函数或模板供Cobra使用。与help一样，函数和模板可以通过公共方法重写：
 	cmd.SetUsageFunc(f func(*Command) error)
 	cmd.SetUsageTemplate(s string)
 
 
 Version Flag
-如果根命令上设置了version字段，则Cobra会添加顶级的“--version”标志。运行带有“--version”标志的应用程序将使用版本模板将版本打印到stdout。可以
-使用cmd自定义模板。SetVersionTemplate（s string）函数。
+如果根命令上设置了version字段，则Cobra会添加顶级的“--version”标志。运行带有“--version”标志的应用程序将使用版本模板将版本打印到stdout。
+可以使用cmd自定义模板。SetVersionTemplate（s string）函数。
 
 
 PreRun and PostRun Hooks	运行前和运行后hook函数

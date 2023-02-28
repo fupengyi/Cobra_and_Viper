@@ -130,36 +130,42 @@ Viper 完全支持环境变量。这使12因素应用程序开箱即用。有五
 	5.AllowEmptyEnv(bool)									//默认情况下，空环境变量被认为是未设置的，并将回退到下一个配置源。若要将空环境变量视为设置，请使用 AllowEmptyEnv 方法。
 
 当使用 ENV 变量时，重要的是要认识到 Viper 将 ENV 变量视为区分大小写的。
-Viper 提供了一种机制来尝试确保 ENV 变量是唯一的。通过使用 SetEnvPrefix(string)，可以告诉 Viper 在读取环境变量时使用前缀。BindEnv 和 AutomaticEnv
-都将使用此前缀。
-	BindEnv 接受一个或多个参数。第一个参数是键名，其余的是要绑定到这个键的环境变量的名称。如果提供了多个，它们将按照指定的顺序优先。环境变量的名字
-是区分大小写的。如果没有提供 ENV 变量名，那么 Viper 将自动假定 ENV 变量匹配以下格式: 前缀 + “_”+ ALL CAPS 中的键名。当显式提供 ENV变量名(第
-二个参数)时，它不会自动添加前缀。例如，如果第二个参数是“ ID”，Viper 将查找 ENV 变量“ ID”。
+Viper 提供了一种机制来尝试确保 ENV 变量是唯一的。通过使用 SetEnvPrefix(string)，可以告诉 Viper 在读取环境变量时使用前缀。BindEnv 和 AutomaticEnv 都将使用此前缀。
+
+BindEnv 接受一个或多个参数。第一个参数是键名，其余的是要绑定到这个键的环境变量的名称。如果提供了多个，它们将按照指定的顺序优先。环境变量的名
+字是区分大小写的。如果没有提供 ENV 变量名，那么 Viper 将自动假定 ENV 变量匹配以下格式: 前缀 + “_”+ ALL CAPS 中的键名。当显式提供 ENV变
+量名(第二个参数)时，它不会自动添加前缀。例如，如果第二个参数是“ ID”，Viper 将查找 ENV 变量“ ID”。
+
 使用 ENV 变量时需要注意的一点是，每次访问该值时都会读取它。当调用 BindEnv 时，Viper 不会修复该值。
-	AutomaticEnv 是一个强大的助手，特别是当与 SetEnvPrefix 组合时。当召唤时，viper.Get会随时检查是否有环境变量。它将适用以下规则。如果
-设置了大写和前缀为 EnvPrefix 的键，它将检查是否有名称与之匹配的环境变量。
-	SetEnvKeyReplace 允许您使用strings.Replacer对象重写一定范围内的 Env 键。如果您希望在 Get ()调用中使用-或其他内容，但希望环境变量使
-用_分隔符，那么这很有用。在 viper_test.go中可以找到使用它的示例。
-	或者，您可以使用带有 NewWithOptions 工厂函数的 EnvKeyReplace。与 SetEnvKeyReplace 不同，它接受 StringReplace 接口，允许您编写自定
-义字符串替换逻辑。
-	默认情况下，空环境变量被认为是未设置的，并将回退到下一个配置源。若要将空环境变量视为设置，请使用 AllowEmptyEnv 方法。
+
+AutomaticEnv 是一个强大的助手，特别是当与 SetEnvPrefix 组合时。当召唤时，viper.Get会随时检查是否有环境变量。它将适用以下规则。如果设置了
+大写和前缀为 EnvPrefix 的键，它将检查是否有名称与之匹配的环境变量。
+
+SetEnvKeyReplace 允许您使用strings.Replacer对象重写一定范围内的 Env 键。如果您希望在 Get ()调用中使用-或其他内容，但希望环境变量使用_
+分隔符，那么这很有用。在 viper_test.go中可以找到使用它的示例。
+
+或者，您可以使用带有 NewWithOptions 工厂函数的 EnvKeyReplace。与 SetEnvKeyReplace 不同，它接受 StringReplace 接口，允许您编写自定义
+字符串替换逻辑。
+
+默认情况下，空环境变量被认为是未设置的，并将回退到下一个配置源。若要将空环境变量视为设置，请使用 AllowEmptyEnv 方法。
 Env example:
-SetEnvPrefix("spf") // will be uppercased automatically 将自动大写
-BindEnv("id")
-os.Setenv("SPF_ID", "13") // typically done outside of the app 通常在应用程序之外完成
-id := Get("id") // 13
+	SetEnvPrefix("spf") // will be uppercased automatically 将自动大写
+	BindEnv("id")
+	os.Setenv("SPF_ID", "13") // typically done outside of the app 通常在应用程序之外完成
+	id := Get("id") // 13
 
 9.Working with Flags
 Viper 具有绑定到标志的能力。具体来说，Viper 支持在 Cobra 库中使用的标志。
 与 BindEnv 一样，该值不是在调用绑定方法时设置的，而是在访问该方法时设置的。这意味着您可以尽早进行绑定，即使在 init ()函数中也是如此。
 对于单个标志，BindPFlag ()方法提供了此功能。例如：
-serverCmd.Flags().Int("port", 1138, "Port to run Application server on")
-viper.BindPFlag("port", serverCmd.Flags().Lookup("port"))
+	serverCmd.Flags().Int("port", 1138, "Port to run Application server on")
+	viper.BindPFlag("port", serverCmd.Flags().Lookup("port"))
 您还可以绑定一组现有的 pFlag (pFlag. FlagSet) 例如：
-pflag.Int("flagname", 1234, "help message for flagname")
-pflag.Parse()
-viper.BindPFlags(pflag.CommandLine)
-i := viper.GetInt("flagname") // retrieve values from viper instead of pflag	从 viper 而不是 pFlag 中检索值
+	pflag.Int("flagname", 1234, "help message for flagname")
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+	i := viper.GetInt("flagname") // retrieve values from viper instead of pflag	从 viper 而不是 pFlag 中检索值
+	
 在 Viper 中使用 pFlag 并不排除使用标准库中使用标志包的其他包。PFlag 包可以通过导入这些标志来处理为标志包定义的标志。这是通过调用一个名为
 AddGoFlagSet ()的 pFlag 包提供的便利函数来实现的。例如：
 package main
@@ -176,6 +182,7 @@ func main() {
 	i := viper.GetInt("flagname") // retrieve value from viper	从viper获取value
 	// ...
 }
+
 Flag interfaces
 Viper 提供了两个 Go 接口来绑定其他标志系统，如果你不使用Pflags的话。
 FlagValue 表示一个标志，这是一个关于如何实现这个接口的非常简单的例子:
@@ -186,6 +193,7 @@ func (f myFlag) ValueString() string { return "my-flag-value" }
 func (f myFlag) ValueType() string { return "string" }
 一旦你的标志实现了这个接口，你可以简单地告诉 Viper 绑定它:
 viper.BindFlagValue("my-flag-name", myFlag{})
+
 FlagValueSet表示一组标志。这是一个关于如何实现此接口的非常简单的示例：
 type myFlagSet struct {
 	flags []myFlag
@@ -203,24 +211,30 @@ viper.BindFlagValues("my-flags", fSet)
 
 10.Remote Key/Value Store Support 远程键/值存储支持
 要在 Viper 中启用远程支持，请对 Viper/remote 包执行空白导入:	import _ "github.com/spf13/viper/remote"
-Viper 将读取从 Key/Value 存储(如 etcd 或 Consule)中的路径检索到的配置字符串(如 JSON、 TOML、 YAML、 HCL 或 envfile)。这些值优先于
-默认值，但是被从磁盘、标志或环境变量检索到的配置值覆盖。
+Viper 将读取从 Key/Value 存储(如 etcd 或 Consule)中的路径检索到的配置字符串(如 JSON、 TOML、 YAML、 HCL 或 envfile)。这些值优先于默
+认值，但是被从磁盘、标志或环境变量检索到的配置值覆盖。
+
 Viper 使用 crypt 从 K/V 存储中检索配置，这意味着您可以存储加密的配置值，如果您有正确的 gpg 密钥环，则可以自动解密它们。加密是可选的。
 您可以将远程配置与本地配置结合使用，也可以独立于本地配置使用。
 Crypt 有一个命令行助手，您可以使用它在 K/V 存储中放置配置。在 http://127.0.0.1:4001上，crypt 默认为 etcd。
-$ go get github.com/bketelsen/crypt/bin/crypt
-$ crypt set -plaintext /config/hugo.json /Users/hugo/settings/config.json
+	$ go get github.com/bketelsen/crypt/bin/crypt
+	$ crypt set -plaintext /config/hugo.json /Users/hugo/settings/config.json
 确认你的value已设定:$ crypt get -plaintext /config/hugo.json
 有关如何设置加密值或如何使用 Consull 的示例，请参见 crypt 文档。
 
 11.Remote Key/Value Store Example - Unencrypted 远程密钥/值存储示例-未加密
-viper.AddRemoteProvider("etcd", "http://127.0.0.1:4001","/config/hugo.json")
-viper.SetConfigType("json") // 因为在字节流中没有文件扩展名，所以支持的扩展名是“ json”、“ toml”、“ yaml”、“ yml”、“ properties”、“ props”、“ prom”、“ env”、“ dotenv”
-err := viper.ReadRemoteConfig()
-viper.AddRemoteProvider("etcd3", "http://127.0.0.1:4001","/config/hugo.json")
-viper.SetConfigType("json") // 因为在字节流中没有文件扩展名，所以支持的扩展名是“ json”、“ toml”、“ yaml”、“ yml”、“ properties”、“ props”、“ prom”、“ env”、“ dotenv”
-err := viper.ReadRemoteConfig()
-Consul您需要使用包含所需配置的 JSON 值将一个键设置为 Consul key/value 存储。例如，创建一个 Consul key/value store键 MY _ CONSUL _ KEY，其值为:
+etcd
+	viper.AddRemoteProvider("etcd", "http://127.0.0.1:4001","/config/hugo.json")
+	viper.SetConfigType("json") // 因为在字节流中没有文件扩展名，所以支持的扩展名是“ json”、“ toml”、“ yaml”、“ yml”、“ properties”、“ props”、“ prom”、“ env”、“ dotenv”
+	err := viper.ReadRemoteConfig()
+
+etcd3
+	viper.AddRemoteProvider("etcd3", "http://127.0.0.1:4001","/config/hugo.json")
+	viper.SetConfigType("json") // 因为在字节流中没有文件扩展名，所以支持的扩展名是“ json”、“ toml”、“ yaml”、“ yml”、“ properties”、“ props”、“ prom”、“ env”、“ dotenv”
+	err := viper.ReadRemoteConfig()
+
+Consul
+您需要使用包含所需配置的 JSON 值将一个键设置为 Consul key/value 存储。例如，创建一个 Consul key/value store键 MY _ CONSUL _ KEY，其值为:
 {
 	"port": 8080,
 	"hostname": "myhostname.com"
@@ -230,6 +244,7 @@ viper.SetConfigType("json") // Need to explicitly set this to json	需要将其�
 err := viper.ReadRemoteConfig()
 fmt.Println(viper.Get("port")) // 8080
 fmt.Println(viper.Get("hostname")) // myhostname.com
+
 Firestore云存储:
 viper.AddRemoteProvider("firestore", "google-cloud-project-id", "collection/document")
 viper.SetConfigType("json") // Config's format: "json", "toml", "yaml", "yml"	配置的格式: “ json”、“ toml”、“ yaml”、“ yml”
@@ -263,19 +278,19 @@ go func(){								// 打开一个 goroutine 来永远观看远程更改
 
 Getting Values From Viper	从 Viper 获取 Values
 在 Viper 中，有几种根据值的类型获取值的方法。现有以下函数和方法:
-Get(key string) : interface{}
-GetBool(key string) : bool
-GetFloat64(key string) : float64
-GetInt(key string) : int
-GetIntSlice(key string) : []int
-GetString(key string) : string
-GetStringMap(key string) : map[string]interface{}
-GetStringMapString(key string) : map[string]string
-GetStringSlice(key string) : []string
-GetTime(key string) : time.Time
-GetDuration(key string) : time.Duration
-IsSet(key string) : bool
-AllSettings() : map[string]interface{}
+	Get(key string) : interface{}
+	GetBool(key string) : bool
+	GetFloat64(key string) : float64
+	GetInt(key string) : int
+	GetIntSlice(key string) : []int
+	GetString(key string) : string
+	GetStringMap(key string) : map[string]interface{}
+	GetStringMapString(key string) : map[string]string
+	GetStringSlice(key string) : []string
+	GetTime(key string) : time.Time
+	GetDuration(key string) : time.Duration
+	IsSet(key string) : bool
+	AllSettings() : map[string]interface{}
 需要注意的一点是，如果没有找到，每个 Get 函数将返回一个零值。为了检查给定的密钥是否存在，提供了 IsSet ()方法。例如：
 viper.GetString("logfile") 			// 不区分大小写的设置与获取
 if viper.GetBool("verbose") {
@@ -301,10 +316,12 @@ if viper.GetBool("verbose") {
 }
 Viper 可以通过传递. 分隔的键路径来访问嵌套字段:	GetString("datastore.metric.host") // (returns "127.0.0.1")
 这符合上面建立的优先级规则; 对路径的搜索将通过剩余的配置注册中心级联，直到找到。
-例如，给定这个配置文件，datastore.metric.host 和 datastore.metric.port 都已经定义(并且可能被覆盖)。如果在默认情况下另外定义
-了datastore.metric.protocol，Viper也会找到它。
+
+例如，给定这个配置文件，datastore.metric.host 和 datastore.metric.port 都已经定义(并且可能被覆盖)。如果在默认情况下另外定义了datastore.metric.protocol，Viper也会找到它。
+
 但是，如果 datastore.metrics 被覆盖(通过一个标志、一个环境变量、 Set ()方法，...)并且有一个立即的值，那么 datastore.metrics 的所有子键
 都将变得未定义，它们将被更高优先级的配置级别“隐藏”。
+
 Viper 可以通过路径中的数字访问数组索引。例如:
 {
 	"host": {
@@ -326,6 +343,7 @@ Viper 可以通过路径中的数字访问数组索引。例如:
 	}
 }
 GetInt("host.ports.1") // returns 6029
+
 最后，如果存在一个与分隔的键路径匹配的键，那么它的值将被返回。
 {
 	"datastore.metric.host": "0.0.0.0",
@@ -389,6 +407,7 @@ err := viper.Unmarshal(&C)
 if err != nil {
 	t.Fatalf("unable to decode into struct, %v", err)
 }
+
 如果要解组键本身包含点(默认的键分隔符)的配置，必须更改分隔符:
 v := viper.NewWithOptions(viper.KeyDelimiter("::"))
 v.SetDefault("chart::values", map[string]interface{}{
@@ -406,11 +425,12 @@ type config struct {
 }
 var C config
 v.Unmarshal(&C)
+
 Viper 还支持将数据解组为嵌入式结构:
 /*
-   Example config实力配置:
+   Example config:
 
-   module模块:
+   module:
        enabled: true
        token: 89h3f98hbwf987h3f98wenf89ehf
 */

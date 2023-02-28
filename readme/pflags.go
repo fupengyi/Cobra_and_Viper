@@ -1,50 +1,55 @@
-描述
+Description
 pflag是Go的flag包的直接替代品，实现了POSIX/GNU风格的flags。
 PFlag 与针对命令行选项的 POSIX 建议的 GNU 扩展兼容。有关更精确的说明，请参见下面的“Command-line flag syntax命令行标志语法”部分。
 PFlag 与 Go 语言采用相同的 BSD 许可风格，可以在 LICENSE 文件中找到。
 
 
-Installation 初始化
+Installation
 pflag可以使用标准的go get命令。
-Install by running通过运行安装：	go get github.com/spf13/pflag
-Run tests by running运行测试:		go test github.com/spf13/pflag
-
+Install by running通过运行安装：
+	go get github.com/spf13/pflag
+Run tests by running运行测试:
+	go test github.com/spf13/pflag
 
 
 Usage用法：
-pflag是Go的本地flag包的一个替代品。如果您以“flag”的名称导入pflag，那么所有代码都应该继续运行，没有任何更改。import flag "github.com/spf13/pflag"
+pflag是Go的本地flag包的一个替代品。如果您以“flag”的名称导入pflag，那么所有代码都应该继续运行，没有任何更改。
+	import flag "github.com/spf13/pflag"
 有一个例外：如果您直接实例化Flag结构，则需要设置另一个字段“Shorthand”。大多数代码从未直接实例化此结构，而是使用String（）、BoolVar（）和Var（）等函数，因此不受影响。
 
 定义flag使用flag.String(), Bool(), Int(), etc.
-这声明了一个整数标志-flagname，存储在指针ip中，类型为*int。var ip *int = flag.Int("flagname", 1234, "help message for flagname")
+这声明了一个整数标志-flagname，存储在指针ip中，类型为*int。
+	var ip *int = flag.Int("flagname", 1234, "help message for flagname")
 
 如果愿意，可以使用Var（）函数将标志绑定到变量。
-var flagvar int
-func init() {
-	flag.IntVar(&flagvar, "flagname", 1234, "help message for flagname")
-}
+	var flagvar int
+	func init() {
+		flag.IntVar(&flagvar, "flagname", 1234, "help message for flagname")
+	}
 
-或者，您可以创建满足Value接口（带指针接收器）的自定义标志，并通过 flag.Var(&flagVal, "name", "help message for flagname")对于此类标志，默认值只是变量的初始值。
+或者，您可以创建满足Value接口（带指针接收器）的自定义标志，并通过
+	flag.Var(&flagVal, "name", "help message for flagname")
+对于此类标志，默认值只是变量的初始值。
 
-定义所有标志后，调用，to parse the command line into the defined flags.
-flag.Parse()
+定义所有标志后，调用，将命令行解析为定义的标志。
+	flag.Parse()
 
 然后可以直接使用标志。如果你使用的是标志本身，它们都是指针；如果绑定到变量，它们就是值。
-fmt.Println("ip has value ", *ip)
-fmt.Println("flagvar has value ", flagvar)
+	fmt.Println("ip has value ", *ip)
+	fmt.Println("flagvar has value ", flagvar)
 
-如果您有FlagSet，但发现很难得到代码中的所有指针，则可以使用帮助函数获取存储在Flag中的值。如果你有pflag.FlagSet带有一个名为“flagname”的int类
-型的标志，您可以使用GetInt（）获取int值。但请注意，“flagname”必须存在，并且必须是int类型。GetString（“flagname”）将失败。
-i, err := flagset.GetInt("flagname")
+如果您有FlagSet，但发现很难得到代码中的所有指针，则可以使用帮助函数获取存储在Flag中的值。如果你有pflag.FlagSet带有一个名为“flagname”的int
+类型的标志，您可以使用GetInt（）获取int值。但请注意，“flagname”必须存在，并且必须是int类型。GetString（“flagname”）将失败。
+	i, err := flagset.GetInt("flagname")
 解析后，flag后面的arg可用作[]flag.Args()或单独作为flag.Arg(i)。参数从0到flag.NArg() - 1进行索引。
 
 pflag包还定义了一些不在flag中的新函数，这些函数为flag提供了一个字母的缩写。您可以通过在定义标志的任何函数的名称后面加上“P”来使用它们。
-var ip = flag.IntP("flagname", "f", 1234, "help message")
-var flagvar bool
-func init() {
-	flag.BoolVarP(&flagvar, "boolname", "b", true, "help message")
-}
-flag.VarP(&flagVal, "varname", "v", "help message")
+	var ip = flag.IntP("flagname", "f", 1234, "help message")
+	var flagvar bool
+	func init() {
+		flag.BoolVarP(&flagvar, "boolname", "b", true, "help message")
+	}
+	flag.VarP(&flagVal, "varname", "v", "help message")
 速记字母可以在命令行上与单破折号(-)一起使用。布尔速记标志可以与其他速记标志组合。
 默认的命令行标志集由top-level函数控制。FlagSet类型允许定义独立的标志集，例如在命令行界面中实现子命令。FlagSet的方法类似于命令行标志集的top-level函数。
 
@@ -52,15 +57,15 @@ flag.VarP(&flagVal, "varname", "v", "help message")
 
 
 Setting no option default values for flags 未设置标志的选项默认值
-创建一个标志之后，就可以为给定的标志设置 pFlag.NoOptDefVal。这样做会稍微改变标志的含义。如果标志具有NoOptDefVal，并且在命令行上设置了该标志而
-没有选项，该标志将被设置为NoOptDefVal。例如:
-var ip = flag.IntP("flagname", "f", 1234, "help message")
-flag.Lookup("flagname").NoOptDefVal = "4321"
+创建一个标志之后，就可以为给定的标志设置 pFlag.NoOptDefVal。这样做会稍微改变标志的含义。如果标志具有NoOptDefVal，并且在命令行上设置了该标
+志而没有选项，该标志将被设置为NoOptDefVal。例如:
+	var ip = flag.IntP("flagname", "f", 1234, "help message")
+	flag.Lookup("flagname").NoOptDefVal = "4321"
 会导致如下结果
-Parsed Arguments	Resulting Value
---flagname=1357		ip=1357
---flagname			ip=4321
-[nothing]			ip=1234
+	Parsed Arguments	Resulting Value
+	--flagname=1357		ip=1357
+	--flagname			ip=4321
+	[nothing]			ip=1234
 
 
 
@@ -72,8 +77,8 @@ Command line flag syntax	命令行标志语法
 // boolean or flags where the 'no option default value' is set		//布尔值或标志，其中设置了“无选项默认值”
 -f
 -f=true
--abc
--b true // is INVALID
+-abc		// but -b true is INVALID	// 但 -b true 是无效的
+
 
 // non-boolean and flags without a 'no option default value'		//非布尔值和不带“no option default value”的标志
 -n 1234
@@ -179,7 +184,7 @@ var ip *int = flag.Int("flagname", 1234, "help message for flagname")
 func main() {
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	flag.Parse()
-	}
+}
 
 
 More info

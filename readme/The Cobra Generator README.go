@@ -59,7 +59,7 @@ cobra-cli add支持与cobra-cli init相同的所有Optional flags（如上所述
   main.go
 此时，您可以运行go run main.go，它将运行您的应用程序,config,create,serve,help serve都会运行
 现在您已经启动并运行了一个基本的Cobra-based应用程序。下一步是在cmd中编辑文件并为应用程序自定义它们。
-有关使用cobra库的完整详细信息，请阅读《User Guide》。
+有关使用cobra库的完整详细信息，请阅读 The Cobra User Guide。
 
 
 
