@@ -10,3 +10,5 @@ func main() {
 	cmd.Execute()
 }
 a
+
+c
