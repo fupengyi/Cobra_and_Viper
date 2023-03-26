@@ -9,6 +9,6 @@ import "Cobra/cmd"
 func main() {
 	cmd.Execute()
 }
-aaa
-
+aaaa
+bbbb
 cccc
